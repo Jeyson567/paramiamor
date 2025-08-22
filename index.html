@@ -1,412 +1,292 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>J&S Studios GT</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap');
-  body {
-    margin: 0;
-    min-height: 100vh;
-    overflow-y: auto;
-    background: #00bcd4;
-    color: #ffffff;
-    font-family: 'Orbitron', monospace, Arial, sans-serif;
-    display: flex;
-    position: relative;
-  }
-
-  /* Sidebar */
-  #sidebar {
-    width: 220px;
-    background: #1a4d2e;
-    box-shadow: 2px 0 15px #39b54aaa;
-    display: flex;
-    flex-direction: column;
-    padding: 1rem 0;
-    position: fixed;
-    height: 100vh;
-    overflow-y: auto;
-    transition: left 0.3s ease;
-    left: 0;
-    top: 0;
-    z-index: 10500;
-  }
-
-  /* Logo */
-  #logo {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 1rem;
-  }
-  #logo img {
-    width: 160px;
-    height: auto;
-    user-select: none;
-  }
-
-  /* Menu */
-  #menu {
-    flex-grow: 1;
-  }
-  .menu-item {
-    padding: 1rem 1.5rem;
-    cursor: pointer;
-    color: #7ee99e;
-    font-weight: 700;
-    border-left: 4px solid transparent;
-    transition: background 0.3s ease, border-left-color 0.3s ease;
-    user-select: none;
-  }
-  .menu-item:hover {
-    background: #7ee99e33;
-  }
-  .menu-item.active {
-    background: #7ee99e55;
-    border-left-color: #7ee99e;
-    color: #0b2f1b;
-    font-weight: 800;
-  }
-
-  /* Main Section */
-  #main {
-    flex-grow: 1;
-    margin-left: 220px;
-    padding: 2rem;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    transition: margin-left 0.3s ease;
-  }
-
-  h1 {
-    margin-top: 0;
-    margin-bottom: 1.5rem;
-    text-align: center;
-    color: #7ee99e;
-    text-shadow: 0 0 8px #7ee99e;
-  }
-
-  #products {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
-  }
-
-  .product {
-    background: #1a4d2e;
-    border-radius: 12px;
-    box-shadow: 0 0 15px #7ee99e55;
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    transition: transform 0.2s ease, box-shadow 0.3s ease;
-  }
-
-  .product:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 0 25px #7ee99ecc;
-  }
-
-  .product img {
-    width: 100%;
-    height: 180px;
-    object-fit: cover;
-    border-radius: 10px;
-    margin-bottom: 1rem;
-    border: 2px solid #7ee99e;
-  }
-
-  .product strong {
-    font-size: 1.2rem;
-    margin-bottom: 0.3rem;
-    text-align: center;
-    color: #e6f7ff;
-  }
-
-  .price {
-    font-weight: 700;
-    font-size: 1.2rem;
-    color: #7ee99e;
-    margin-bottom: 1rem;
-  }
-
-  button.add-btn {
-    background: #7ee99e;
-    border: none;
-    color: #0b2f1b;
-    font-weight: 700;
-    padding: 0.7rem 1.5rem;
-    border-radius: 10px;
-    cursor: pointer;
-    width: 100%;
-    font-size: 1rem;
-    transition: background 0.3s ease;
-  }
-
-  button.add-btn:hover {
-    background: #5fc27a;
-  }
-
-  #cart {
-    background: #1a4d2e;
-    border-radius: 12px;
-    box-shadow: 0 0 20px #7ee99ebb;
-    padding: 1.5rem;
-    margin-top: 2rem;
-    max-height: 320px;
-    overflow-y: auto;
-  }
-
-  #cart h2 {
-    margin-top: 0;
-    margin-bottom: 1rem;
-    border-bottom: 2px solid #7ee99e;
-    padding-bottom: 0.5rem;
-    color: #7ee99e;
-    text-align: center;
-  }
-
-  #cart-items {
-    color: #d4f1db;
-    font-family: monospace;
-  }
-
-  #cart-total {
-    font-weight: 700;
-    font-size: 1.3rem;
-    margin-top: 1rem;
-    color: #7ee99e;
-    text-align: center;
-  }
-
-  #btn-whatsapp {
-    background: #7ee99e;
-    border: none;
-    color: #0b2f1b;
-    font-weight: 700;
-    font-size: 1.2rem;
-    padding: 0.9rem;
-    width: 100%;
-    border-radius: 12px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-    margin-top: 1rem;
-  }
-
-  #btn-whatsapp:disabled {
-    background: #164723;
-    cursor: not-allowed;
-    color: #679c73;
-  }
-
-  #btn-whatsapp:hover:not(:disabled) {
-    background: #5fc27a;
-  }
-
-  #menuToggle {
-    position: fixed;
-    top: 15px;
-    left: 15px;
-    z-index: 11000;
-    background: #7ee99e;
-    border: none;
-    border-radius: 6px;
-    padding: 8px 12px;
-    cursor: pointer;
-    display: none;
-    font-size: 1.2rem;
-    color: #0b2f1b;
-  }
-
-  /* Responsive */
-  @media (max-width: 800px) {
-    #sidebar {
-      left: -250px;
-    }
-
-    #sidebar.open {
-      left: 0;
-    }
-
-    #menuToggle {
-      display: block;
-    }
-
-    #main {
-      margin-left: 0 !important;
-      padding: 1rem;
-    }
-  }
-</style>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Sistema de Recepción de Hotel</title>
+	<style>
+		body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 0; }
+		.container { max-width: 900px; margin: 30px auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 2px 8px #ccc; }
+		h1 { text-align: center; color: #2c3e50; }
+		.flex { display: flex; gap: 30px; }
+		.form-section, .list-section { flex: 1; }
+		label { display: block; margin-top: 10px; }
+		input, select { width: 100%; padding: 7px; margin-top: 5px; border-radius: 4px; border: 1px solid #ccc; }
+		button { margin-top: 15px; padding: 10px 20px; background: #2980b9; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+		button:hover { background: #3498db; }
+		table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+		th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
+		th { background: #2980b9; color: #fff; }
+		.disponible { color: green; font-weight: bold; }
+		.ocupada { color: red; font-weight: bold; }
+	</style>
 </head>
 <body>
+	<div class="container">
+		<div class="flex">
+			<div class="form-section">
+				<!-- ...existing code... -->
+			</div>
+			<div class="list-section">
+				<button id="btnInformeOcupadas" style="background:#27ae60; color:#fff; padding:10px 20px; border:none; border-radius:4px; margin-bottom:20px; cursor:pointer;">Informe diario de habitaciones ocupadas</button>
+				<div id="informeOcupadas" style="margin-bottom:20px;"></div>
+				<!-- ...existing code... -->
+			</div>
+		</div>
+		<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+			<h1 style="margin: 0;">Sistema de Recepción de Hotel</h1>
+			<button id="borrarTodo" style="background:#e74c3c; color:#fff; padding:10px 20px; border:none; border-radius:4px; cursor:pointer;">Borrar Todo</button>
+		</div>
 
-<!-- Botón hamburguesa -->
-<button id="menuToggle" aria-label="Abrir menú">☰</button>
+		<div class="flex">
+			<div class="form-section">
 
-<div id="sidebar">
-  <div id="logo">
-    <img src="https://i.imgur.com/OfE6gYP.png" alt="J&S Studios GT Logo" />
-  </div>
-  <nav id="menu">
-    <div class="menu-item active" data-category="marketing">Marketing</div>
-    <div class="menu-item" data-category="accesorios">Accesorios</div>
-  </nav>
-</div>
 
-<div id="main">
-  <h1>J&S Studios GT</h1>
-  <div id="products"></div>
+				<h2>Check-in</h2>
 
-  <section id="cart">
-    <h2>Tu carrito</h2>
-    <div id="cart-items">Tu carrito está vacío.</div>
-    <div id="cart-total">Total: Q0.00</div>
-    <button id="btn-whatsapp" disabled>Enviar pedido por WhatsApp</button>
-  </section>
-</div>
+				<form id="formCheckin">
+					<label>Habitación
+						<select id="habitacionCheckin"></select>
+					</label>
+					<label>Nombre del Huésped
+						<input type="text" id="nombreHuesped" required>
+					</label>
+					<label>Fecha de Ingreso
+						<input type="date" id="fechaIngreso" required>
+					</label>
+					<label>Fecha de Salida
+						<input type="date" id="fechaSalida" required>
+					</label>
+					<button type="submit">Registrar Check-in</button>
+				</form>
 
-<script>
-  const menuToggle = document.getElementById('menuToggle');
-  const sidebar = document.getElementById('sidebar');
-  const menuItems = document.querySelectorAll('.menu-item');
-  const productsDiv = document.getElementById('products');
-  const cartItemsDiv = document.getElementById('cart-items');
-  const cartTotalDiv = document.getElementById('cart-total');
-  const btnWhatsApp = document.getElementById('btn-whatsapp');
+				<h2>Check-out</h2>
+				<form id="formCheckout">
+					<label>Habitación
+						<select id="habitacionCheckout"></select>
+					</label>
+					<button type="submit">Registrar Check-out</button>
+				</form>
+			</div>
+			<div class="list-section">
+				<h2>Estado de Habitaciones</h2>
+				<table>
+					<thead>
+						<tr>
+							<th>Número</th>
+							<th>Estado</th>
+							<th>Huésped</th>
+							<th>Ingreso</th>
+							<th>Salida</th>
+							<th>¿Ingresó?</th>
+							<th>¿Pagó?</th>
+						</tr>
+					</thead>
+					<tbody id="tablaHabitaciones"></tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<script>
+// Asegurar que el botón funcione correctamente al cargar el DOM
+document.addEventListener('DOMContentLoaded', function() {
+	var btn = document.getElementById('borrarTodo');
+	if (btn) {
+		btn.onclick = function() {
+			if (confirm('¿Seguro que deseas borrar todos los datos?')) {
+				localStorage.removeItem('habitaciones');
+				render();
+			}
+		};
+	}
+});
+		// Utilidades para LocalStorage
+		function getHabitaciones() {
+			return JSON.parse(localStorage.getItem('habitaciones') || '[]');
+		}
+		function setHabitaciones(habs) {
+			localStorage.setItem('habitaciones', JSON.stringify(habs));
+		}
 
-  const productsData = {
-    marketing: [
-      { id: 1, name: "Página Web Básica", price: 650, image: "https://i.imgur.com/rJVgWoQ.jpg" },
-      { id: 2, name: "Menú Digital Básico", price: 150, image: "https://i.imgur.com/8hW0sfJ.jpg" },
-      { id: 3, name: "Diseño de Logo Básico", price: 100, image: "https://i.imgur.com/zKpOWpR.jpg" },
-      { id: 4, name: "Tarjetas de Presentación", price: 55, image: "https://imgur.com/HRuK6jx.jpg" }
-    ],
-    accesorios: [
-      { id: 5, name: "Fundas para Celular", price: 100, image: "https://i.imgur.com/8HwnFoe.jpg" },
-      { id: 6, name: "Cargadores Rápidos", price: 150, image: "https://i.imgur.com/9fkcWQx.jpg" }
-    ]
-  };
+		// Renderizar tabla y selects
+		function render() {
+			let habitaciones = getHabitaciones();
+			// Si no hay habitaciones, crear 21 por defecto
+			if (habitaciones.length !== 21) {
+				habitaciones = Array.from({length: 21}, (_, i) => ({
+					numero: (i+1).toString(),
+					estado: 'Disponible',
+					reservas: [],
+					ocupacion: null
+				}));
+				setHabitaciones(habitaciones);
+			}
+				const tabla = document.getElementById('tablaHabitaciones');
+				const selectCheckin = document.getElementById('habitacionCheckin');
+				const selectCheckout = document.getElementById('habitacionCheckout');
+				tabla.innerHTML = '';
+				selectCheckin.innerHTML = '';
+				selectCheckout.innerHTML = '';
+				const hoy = new Date().toISOString().slice(0,10);
+				habitaciones.forEach(h => {
+					if (h.ocupacion) {
+						const ingreso = h.ocupacion.ingreso ? '✔️' : '❌';
+						const pago = h.ocupacion.pago ? '✔️' : '❌';
+						const tr = document.createElement('tr');
+						tr.innerHTML = `
+							<td>${h.numero}</td>
+							<td class="ocupada">Ocupada</td>
+							<td>${h.ocupacion.huesped}</td>
+							<td>${h.ocupacion.fechaIngreso}</td>
+							<td>${h.ocupacion.fechaSalida}</td>
+							<td><button data-hab="${h.numero}" class="btn-ingreso">${ingreso}</button></td>
+							<td><button data-hab="${h.numero}" class="btn-pago">${pago}</button></td>
+						`;
+						tabla.appendChild(tr);
+					} else {
+						const tr = document.createElement('tr');
+						tr.innerHTML = `
+							<td>${h.numero}</td>
+							<td class="disponible">Disponible</td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+							<td></td>
+						`;
+						tabla.appendChild(tr);
+					}
+					// Selects
+					if (!h.ocupacion) {
+						const opt = document.createElement('option');
+						opt.value = h.numero;
+						opt.textContent = h.numero;
+						selectCheckin.appendChild(opt);
+					}
+					if (h.ocupacion) {
+						const opt = document.createElement('option');
+						opt.value = h.numero;
+						opt.textContent = h.numero;
+						selectCheckout.appendChild(opt);
+					}
+				});
 
-  let currentCategory = "marketing";
-  let cart = [];
+				// Asignar eventos a los botones de ingreso y pago después de renderizar la tabla
+				document.querySelectorAll('.btn-ingreso').forEach(btn => {
+					btn.addEventListener('click', function() {
+						const num = this.getAttribute('data-hab');
+						let habitaciones = getHabitaciones();
+						const hab = habitaciones.find(h => h.numero === num);
+						if (hab && hab.ocupacion) {
+							hab.ocupacion.ingreso = !hab.ocupacion.ingreso;
+							setHabitaciones(habitaciones);
+							render();
+						}
+					});
+				});
+				document.querySelectorAll('.btn-pago').forEach(btn => {
+					btn.addEventListener('click', function() {
+						const num = this.getAttribute('data-hab');
+						let habitaciones = getHabitaciones();
+						const hab = habitaciones.find(h => h.numero === num);
+						if (hab && hab.ocupacion) {
+							hab.ocupacion.pago = !hab.ocupacion.pago;
+							setHabitaciones(habitaciones);
+							render();
+						}
+					});
+				});
+		// Informe de habitaciones ocupadas
+		document.getElementById('btnInformeOcupadas').onclick = function() {
+			let habitaciones = getHabitaciones();
+			let ocupadas = habitaciones.filter(h => h.ocupacion);
+			let html = '';
+			if (ocupadas.length === 0) {
+				html = '<b>No hay habitaciones ocupadas actualmente.</b>';
+			} else {
+			       html = `<b>Habitaciones ocupadas (${ocupadas.length}):</b><ul>` +
+				   ocupadas.map((h, i) => `<li><b>#${i + 1}</b> - Habitación ${h.numero} - ${h.ocupacion.huesped} (${h.ocupacion.fechaIngreso} a ${h.ocupacion.fechaSalida})</li>`).join('') +
+				   `</ul><b>Total de habitaciones ocupadas: ${ocupadas.length}</b>`;
+			}
+			document.getElementById('informeOcupadas').innerHTML = html;
+		};
+				// Mostrar recordatorios
+				const recDiv = document.getElementById('recordatorios');
+				if (recordatorios.length > 0) {
+					recDiv.innerHTML = `<b>Reservaciones para hoy:</b><ul><li>${recordatorios.join('</li><li>')}</li></ul>`;
+				} else {
+					recDiv.innerHTML = '';
+				}
+				// Mostrar reservas futuras
+				const futDiv = document.getElementById('reservasFuturas');
+				if (reservasFuturas.length > 0) {
+					futDiv.innerHTML = `<b>Reservaciones futuras:</b><ul><li>${reservasFuturas.join('</li><li>')}</li></ul>`;
+				} else {
+					futDiv.innerHTML = '';
+				}
+				// Mostrar historial de reservas pasadas
+				const histDiv = document.getElementById('historialReservas');
+				if (historial.length > 0) {
+					histDiv.innerHTML = `<b>Historial de reservas pasadas:</b><ul><li>${historial.join('</li><li>')}</li></ul>`;
+				} else {
+					histDiv.innerHTML = '';
+				}
 
-  function loadProducts(category) {
-    productsDiv.innerHTML = "";
-    const items = productsData[category] || [];
-    items.forEach(p => {
-      const div = document.createElement('div');
-      div.className = 'product';
-      div.innerHTML = `
-        <img src="${p.image}" alt="${p.name}" />
-        <strong>${p.name}</strong>
-        <div class="price">Q${p.price.toFixed(2)}</div>
-        <button class="add-btn">Agregar</button>
-      `;
-      productsDiv.appendChild(div);
+		}
 
-      const btn = div.querySelector('button.add-btn');
-      btn.addEventListener('click', () => addToCart(p.id));
-    });
-  }
 
-  function addToCart(id) {
-    let prod;
-    for(let cat in productsData){
-      const p = productsData[cat].find(item => item.id === id);
-      if(p){
-        prod = p;
-        break;
-      }
-    }
-    if(!prod) return;
 
-    const item = cart.find(i => i.id === id);
-    if(item){
-      item.quantity++;
-    } else {
-      cart.push({...prod, quantity:1});
-    }
-    updateCart();
-  }
+		// Check-in: solo si hay reserva activa para hoy o si está libre
+		document.getElementById('formCheckin').onsubmit = function(e) {
+			e.preventDefault();
+			const numero = document.getElementById('habitacionCheckin').value;
+			const huesped = document.getElementById('nombreHuesped').value.trim();
+			const fechaIngreso = document.getElementById('fechaIngreso').value;
+			const fechaSalida = document.getElementById('fechaSalida').value;
+			if (!numero || !huesped || !fechaIngreso || !fechaSalida) return;
+			if (fechaSalida < fechaIngreso) {
+				alert('La fecha de salida no puede ser antes de la fecha de ingreso.');
+				return;
+			}
+			let habitaciones = getHabitaciones();
+			habitaciones = habitaciones.map(h => {
+				if (h.numero === numero) {
+					// No permitir check-in si está ocupada o si hay una reserva de otro huésped para ese rango
+					if (h.ocupacion) {
+						alert('La habitación ya está ocupada.');
+						return h;
+					}
+					if (h.reservas.some(r => !(fechaSalida < r.fechaIngreso || fechaIngreso > r.fechaSalida) && r.huesped !== huesped)) {
+						alert('Ya existe una reserva de otro huésped que se cruza con esas fechas.');
+						return h;
+					}
+					// Si hay una reserva para este huésped y rango, la quitamos
+					let nuevaReservas = h.reservas.filter(r => (r.huesped !== huesped || r.fechaIngreso !== fechaIngreso || r.fechaSalida !== fechaSalida));
+					return { ...h, ocupacion: { huesped, fechaIngreso, fechaSalida, ingreso: false, pago: false }, reservas: nuevaReservas, estado: 'Ocupada' };
+				}
+				return h;
+			});
+			setHabitaciones(habitaciones);
+			this.reset();
+			render();
+		};
 
-  function updateCart() {
-    if(cart.length === 0){
-      cartItemsDiv.textContent = "Tu carrito está vacío.";
-      cartTotalDiv.textContent = "Total: Q0.00";
-      btnWhatsApp.disabled = true;
-      return;
-    }
-    cartItemsDiv.innerHTML = "";
-    let total = 0;
-    cart.forEach(item => {
-      total += item.price * item.quantity;
-      const div = document.createElement('div');
-      div.className = 'cart-item';
+		// Check-out: libera la ocupación actual
+		document.getElementById('formCheckout').onsubmit = function(e) {
+			e.preventDefault();
+			const numero = document.getElementById('habitacionCheckout').value;
+			if (!numero) return;
+			let habitaciones = getHabitaciones();
+			habitaciones = habitaciones.map(h =>
+				h.numero === numero ? { ...h, ocupacion: null, estado: 'Disponible' } : h
+			);
+			setHabitaciones(habitaciones);
+			this.reset();
+			render();
+		};
 
-      div.innerHTML = `
-        <div class="item-info">${item.name}</div>
-        <input type="number" min="1" value="${item.quantity}" data-id="${item.id}" />
-        <div>Q${(item.price * item.quantity).toFixed(2)}</div>
-        <button class="remove-btn" data-id="${item.id}" title="Quitar">&times;</button>
-      `;
-
-      cartItemsDiv.appendChild(div);
-    });
-    cartTotalDiv.textContent = `Total: Q${total.toFixed(2)}`;
-    btnWhatsApp.disabled = false;
-
-    document.querySelectorAll('#cart-items input[type=number]').forEach(input => {
-      input.addEventListener('change', e => {
-        const id = parseInt(e.target.getAttribute('data-id'));
-        let val = parseInt(e.target.value);
-        if(isNaN(val) || val < 1) val = 1;
-        e.target.value = val;
-
-        const item = cart.find(i => i.id === id);
-        if(item){
-          item.quantity = val;
-          updateCart();
-        }
-      });
-    });
-
-    document.querySelectorAll('#cart-items .remove-btn').forEach(btn => {
-      btn.addEventListener('click', e => {
-        const id = parseInt(e.target.getAttribute('data-id'));
-        cart = cart.filter(i => i.id !== id);
-        updateCart();
-      });
-    });
-  }
-
-  // Función para generar el mensaje de WhatsApp
-  btnWhatsApp.addEventListener('click', function () {
-    if(cart.length === 0) return;
-
-    let orderDetails = `Pedido de J&S Studios GT:\n\n`;
-
-    cart.forEach(item => {
-      orderDetails += `${item.name} - Cantidad: ${item.quantity} - Precio: Q${(item.price * item.quantity).toFixed(2)}\n`;
-    });
-
-    const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    orderDetails += `\n\nTotal: Q${total.toFixed(2)}\n\nGracias por tu compra.`;
-
-    const whatsappUrl = `https://wa.me/50248608447?text=${encodeURIComponent(orderDetails)}`;
-    window.open(whatsappUrl, '_blank');
-  });
-
-  // Toggle menú lateral en móvil
-  menuToggle.addEventListener('click', () => {
-    sidebar.classList.toggle('open');
-  });
-
-  loadProducts(currentCategory);
-</script>
-
+		// Inicializar
+		render();
+	</script>
 </body>
 </html>
