@@ -1,292 +1,830 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Sistema de Recepción de Hotel</title>
-	<style>
-		body { font-family: Arial, sans-serif; background: #f4f4f4; margin: 0; padding: 0; }
-		.container { max-width: 900px; margin: 30px auto; background: #fff; padding: 30px; border-radius: 10px; box-shadow: 0 2px 8px #ccc; }
-		h1 { text-align: center; color: #2c3e50; }
-		.flex { display: flex; gap: 30px; }
-		.form-section, .list-section { flex: 1; }
-		label { display: block; margin-top: 10px; }
-		input, select { width: 100%; padding: 7px; margin-top: 5px; border-radius: 4px; border: 1px solid #ccc; }
-		button { margin-top: 15px; padding: 10px 20px; background: #2980b9; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
-		button:hover { background: #3498db; }
-		table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-		th, td { border: 1px solid #ddd; padding: 8px; text-align: center; }
-		th { background: #2980b9; color: #fff; }
-		.disponible { color: green; font-weight: bold; }
-		.ocupada { color: red; font-weight: bold; }
-	</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Inversiones Sandoval — Control de lotes, casas y pagos</title>
+  <style>
+    :root{--accent:#2b7a78;--muted:#666;--bg:#f5f7f7}
+    body{font-family:Segoe UI,Roboto,Arial,sans-serif;margin:0;background:var(--bg);color:#111}
+    header{background:var(--accent);color:#fff;padding:14px 20px;display:flex;align-items:center;gap:12px}
+    header h1{font-size:18px;margin:0}
+    .container{display:flex;gap:18px;padding:18px}
+    nav{width:220px;background:#fff;border-radius:6px;padding:12px;box-shadow:0 1px 4px rgba(0,0,0,.06)}
+    nav button{display:block;width:100%;margin:6px 0;padding:10px;border:0;background:transparent;text-align:left;border-radius:4px;cursor:pointer}
+    nav button.active{background:var(--accent);color:#fff}
+    main{flex:1;min-height:70vh}
+    section.card{background:#fff;padding:14px;border-radius:6px;box-shadow:0 1px 4px rgba(0,0,0,.06);margin-bottom:12px}
+    form.row{display:flex;flex-wrap:wrap;gap:8px}
+    form.row input, form.row select{padding:8px;border:1px solid #ddd;border-radius:4px;min-width:140px}
+    table{width:100%;border-collapse:collapse;font-size:14px}
+    th,td{padding:8px;border-bottom:1px solid #eee;text-align:left}
+    .muted{color:var(--muted)}
+    .small{font-size:13px}
+    .btn{background:var(--accent);color:#fff;padding:8px 10px;border-radius:4px;border:0;cursor:pointer}
+    .btn.secondary{background:#444}
+    .inline{display:inline-block}
+    .flex{display:flex;gap:8px;align-items:center}
+    .right{text-align:right}
+    .notice{background:#fffbe6;border:1px solid #ffe58f;padding:8px;border-radius:4px}
+    footer{padding:12px;text-align:center;color:#666;font-size:13px}
+    input[type="date"]{padding:6px}
+    .search{margin-bottom:8px}
+    .actions button{margin-right:6px}
+    .muted-compact{color:#777;font-size:12px}
+    @media(max-width:800px){.container{flex-direction:column}nav{width:100%}}
+  </style>
 </head>
 <body>
-	<div class="container">
-		<div class="flex">
-			<div class="form-section">
-				<!-- ...existing code... -->
-			</div>
-			<div class="list-section">
-				<button id="btnInformeOcupadas" style="background:#27ae60; color:#fff; padding:10px 20px; border:none; border-radius:4px; margin-bottom:20px; cursor:pointer;">Informe diario de habitaciones ocupadas</button>
-				<div id="informeOcupadas" style="margin-bottom:20px;"></div>
-				<!-- ...existing code... -->
-			</div>
-		</div>
-		<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-			<h1 style="margin: 0;">Sistema de Recepción de Hotel</h1>
-			<button id="borrarTodo" style="background:#e74c3c; color:#fff; padding:10px 20px; border:none; border-radius:4px; cursor:pointer;">Borrar Todo</button>
-		</div>
+  <header>
+    <h1>Inversiones Sandoval — Control de lotes, casas y pagos</h1>
+    <div style="margin-left:auto" class="small muted">Guardado local (localStorage) — Moneda: GTQ</div>
+  </header>
 
-		<div class="flex">
-			<div class="form-section">
+  <div class="container">
+    <nav>
+      <button id="nav-dashboard" class="active">Tablero</button>
+      <button id="nav-clients">Clientes</button>
+      <button id="nav-lotes">Lotes</button>
+      <button id="nav-casas">Casas</button>
+      <button id="nav-ventas">Ventas / Contratos</button>
+      <button id="nav-pagos">Registrar pago</button>
+      <button id="nav-reportes">Reportes / Export</button>
+    </nav>
 
+    <main>
+      <section id="dashboard" class="card">
+        <h2>Tablero</h2>
+        <div class="flex" style="justify-content:space-between;align-items:flex-start">
+          <div style="flex:1;margin-right:12px">
+            <div class="card" style="padding:10px">
+              <h3>Resumen</h3>
+              <div id="summary" class="small muted">Cargando...</div>
+            </div>
+            <div class="card" style="padding:10px;margin-top:10px">
+              <h3>Próximos vencimientos (30 días)</h3>
+              <div id="vencimientosList" class="small muted">Cargando...</div>
+            </div>
+          </div>
 
-				<h2>Check-in</h2>
+          <div style="width:320px">
+            <div class="card" style="padding:10px">
+              <h3>Acciones rápidas</h3>
+              <div class="flex" style="flex-direction:column">
+                <button class="btn" onclick="showSection('nav-clients')">Nuevo cliente</button>
+                <button class="btn" onclick="showSection('nav-lotes')">Nuevo lote</button>
+                <button class="btn" onclick="showSection('nav-casas')">Nueva casa</button>
+                <button class="btn" onclick="showSection('nav-ventas')">Nueva venta</button>
+                <button class="btn" onclick="showSection('nav-pagos')">Registrar pago</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-				<form id="formCheckin">
-					<label>Habitación
-						<select id="habitacionCheckin"></select>
-					</label>
-					<label>Nombre del Huésped
-						<input type="text" id="nombreHuesped" required>
-					</label>
-					<label>Fecha de Ingreso
-						<input type="date" id="fechaIngreso" required>
-					</label>
-					<label>Fecha de Salida
-						<input type="date" id="fechaSalida" required>
-					</label>
-					<button type="submit">Registrar Check-in</button>
-				</form>
+      <section id="clients" class="card" style="display:none">
+        <h2>Clientes</h2>
+        <div class="search">
+          <input id="searchClient" placeholder="Buscar por nombre o documento" style="width:70%;padding:8px;border:1px solid #ddd;border-radius:4px" />
+          <button class="btn secondary" onclick="renderClients()">Buscar</button>
+        </div>
 
-				<h2>Check-out</h2>
-				<form id="formCheckout">
-					<label>Habitación
-						<select id="habitacionCheckout"></select>
-					</label>
-					<button type="submit">Registrar Check-out</button>
-				</form>
-			</div>
-			<div class="list-section">
-				<h2>Estado de Habitaciones</h2>
-				<table>
-					<thead>
-						<tr>
-							<th>Número</th>
-							<th>Estado</th>
-							<th>Huésped</th>
-							<th>Ingreso</th>
-							<th>Salida</th>
-							<th>¿Ingresó?</th>
-							<th>¿Pagó?</th>
-						</tr>
-					</thead>
-					<tbody id="tablaHabitaciones"></tbody>
-				</table>
-			</div>
-		</div>
-	</div>
-	<script>
-// Asegurar que el botón funcione correctamente al cargar el DOM
-document.addEventListener('DOMContentLoaded', function() {
-	var btn = document.getElementById('borrarTodo');
-	if (btn) {
-		btn.onclick = function() {
-			if (confirm('¿Seguro que deseas borrar todos los datos?')) {
-				localStorage.removeItem('habitaciones');
-				render();
-			}
-		};
-	}
-});
-		// Utilidades para LocalStorage
-		function getHabitaciones() {
-			return JSON.parse(localStorage.getItem('habitaciones') || '[]');
-		}
-		function setHabitaciones(habs) {
-			localStorage.setItem('habitaciones', JSON.stringify(habs));
-		}
+        <form id="formClient" class="row" onsubmit="event.preventDefault(); addClient();">
+          <input id="clientName" placeholder="Nombre completo" required />
+          <input id="clientDoc" placeholder="Documento (DNI/RUC)" />
+          <input id="clientPhone" placeholder="Teléfono" />
+          <input id="clientEmail" placeholder="Email" />
+          <button class="btn" type="submit">Guardar cliente</button>
+        </form>
 
-		// Renderizar tabla y selects
-		function render() {
-			let habitaciones = getHabitaciones();
-			// Si no hay habitaciones, crear 21 por defecto
-			if (habitaciones.length !== 21) {
-				habitaciones = Array.from({length: 21}, (_, i) => ({
-					numero: (i+1).toString(),
-					estado: 'Disponible',
-					reservas: [],
-					ocupacion: null
-				}));
-				setHabitaciones(habitaciones);
-			}
-				const tabla = document.getElementById('tablaHabitaciones');
-				const selectCheckin = document.getElementById('habitacionCheckin');
-				const selectCheckout = document.getElementById('habitacionCheckout');
-				tabla.innerHTML = '';
-				selectCheckin.innerHTML = '';
-				selectCheckout.innerHTML = '';
-				const hoy = new Date().toISOString().slice(0,10);
-				habitaciones.forEach(h => {
-					if (h.ocupacion) {
-						const ingreso = h.ocupacion.ingreso ? '✔️' : '❌';
-						const pago = h.ocupacion.pago ? '✔️' : '❌';
-						const tr = document.createElement('tr');
-						tr.innerHTML = `
-							<td>${h.numero}</td>
-							<td class="ocupada">Ocupada</td>
-							<td>${h.ocupacion.huesped}</td>
-							<td>${h.ocupacion.fechaIngreso}</td>
-							<td>${h.ocupacion.fechaSalida}</td>
-							<td><button data-hab="${h.numero}" class="btn-ingreso">${ingreso}</button></td>
-							<td><button data-hab="${h.numero}" class="btn-pago">${pago}</button></td>
-						`;
-						tabla.appendChild(tr);
-					} else {
-						const tr = document.createElement('tr');
-						tr.innerHTML = `
-							<td>${h.numero}</td>
-							<td class="disponible">Disponible</td>
-							<td></td>
-							<td></td>
-							<td></td>
-							<td></td>
-							<td></td>
-						`;
-						tabla.appendChild(tr);
-					}
-					// Selects
-					if (!h.ocupacion) {
-						const opt = document.createElement('option');
-						opt.value = h.numero;
-						opt.textContent = h.numero;
-						selectCheckin.appendChild(opt);
-					}
-					if (h.ocupacion) {
-						const opt = document.createElement('option');
-						opt.value = h.numero;
-						opt.textContent = h.numero;
-						selectCheckout.appendChild(opt);
-					}
-				});
+        <div style="margin-top:12px">
+          <table id="clientsTable">
+            <thead><tr><th>Nombre</th><th>Documento</th><th>Teléfono</th><th>Saldo</th><th>Acciones</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
 
-				// Asignar eventos a los botones de ingreso y pago después de renderizar la tabla
-				document.querySelectorAll('.btn-ingreso').forEach(btn => {
-					btn.addEventListener('click', function() {
-						const num = this.getAttribute('data-hab');
-						let habitaciones = getHabitaciones();
-						const hab = habitaciones.find(h => h.numero === num);
-						if (hab && hab.ocupacion) {
-							hab.ocupacion.ingreso = !hab.ocupacion.ingreso;
-							setHabitaciones(habitaciones);
-							render();
-						}
-					});
-				});
-				document.querySelectorAll('.btn-pago').forEach(btn => {
-					btn.addEventListener('click', function() {
-						const num = this.getAttribute('data-hab');
-						let habitaciones = getHabitaciones();
-						const hab = habitaciones.find(h => h.numero === num);
-						if (hab && hab.ocupacion) {
-							hab.ocupacion.pago = !hab.ocupacion.pago;
-							setHabitaciones(habitaciones);
-							render();
-						}
-					});
-				});
-		// Informe de habitaciones ocupadas
-		document.getElementById('btnInformeOcupadas').onclick = function() {
-			let habitaciones = getHabitaciones();
-			let ocupadas = habitaciones.filter(h => h.ocupacion);
-			let html = '';
-			if (ocupadas.length === 0) {
-				html = '<b>No hay habitaciones ocupadas actualmente.</b>';
-			} else {
-			       html = `<b>Habitaciones ocupadas (${ocupadas.length}):</b><ul>` +
-				   ocupadas.map((h, i) => `<li><b>#${i + 1}</b> - Habitación ${h.numero} - ${h.ocupacion.huesped} (${h.ocupacion.fechaIngreso} a ${h.ocupacion.fechaSalida})</li>`).join('') +
-				   `</ul><b>Total de habitaciones ocupadas: ${ocupadas.length}</b>`;
-			}
-			document.getElementById('informeOcupadas').innerHTML = html;
-		};
-				// Mostrar recordatorios
-				const recDiv = document.getElementById('recordatorios');
-				if (recordatorios.length > 0) {
-					recDiv.innerHTML = `<b>Reservaciones para hoy:</b><ul><li>${recordatorios.join('</li><li>')}</li></ul>`;
-				} else {
-					recDiv.innerHTML = '';
-				}
-				// Mostrar reservas futuras
-				const futDiv = document.getElementById('reservasFuturas');
-				if (reservasFuturas.length > 0) {
-					futDiv.innerHTML = `<b>Reservaciones futuras:</b><ul><li>${reservasFuturas.join('</li><li>')}</li></ul>`;
-				} else {
-					futDiv.innerHTML = '';
-				}
-				// Mostrar historial de reservas pasadas
-				const histDiv = document.getElementById('historialReservas');
-				if (historial.length > 0) {
-					histDiv.innerHTML = `<b>Historial de reservas pasadas:</b><ul><li>${historial.join('</li><li>')}</li></ul>`;
-				} else {
-					histDiv.innerHTML = '';
-				}
+      <section id="lotes" class="card" style="display:none">
+        <h2>Lotes</h2>
+        <form id="formLote" class="row" onsubmit="event.preventDefault(); addLote();">
+          <input id="loteCode" placeholder="Código del lote (ej: L-01)" required />
+          <input id="loteUbic" placeholder="Ubicación" />
+          <input id="lotePrice" placeholder="Precio (total)" type="number" min="0" step="0.01" required />
+          <button class="btn" type="submit">Guardar lote</button>
+        </form>
 
-		}
+        <div style="margin-top:12px">
+          <table id="lotesTable">
+            <thead><tr><th>Código</th><th>Ubicación</th><th>Precio</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
 
+      <section id="casas" class="card" style="display:none">
+        <h2>Casas</h2>
+        <form id="formCasa" class="row" onsubmit="event.preventDefault(); addCasa();">
+          <input id="casaCode" placeholder="Código casa (ej: H-01)" required />
+          <input id="casaUbic" placeholder="Dirección / zona" />
+          <input id="casaPrice" placeholder="Precio (total)" type="number" min="0" step="0.01" required />
+          <label style="align-self:center">Tipo venta:
+            <select id="casaType">
+              <option value="venta">Venta</option>
+              <option value="alquiler" disabled>Alquiler (pendiente)</option>
+            </select>
+          </label>
+          <button class="btn" type="submit">Guardar casa</button>
+        </form>
 
+        <div style="margin-top:12px">
+          <table id="casasTable">
+            <thead><tr><th>Código</th><th>Ubicación</th><th>Precio</th><th>Estado</th><th>Acciones</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
 
-		// Check-in: solo si hay reserva activa para hoy o si está libre
-		document.getElementById('formCheckin').onsubmit = function(e) {
-			e.preventDefault();
-			const numero = document.getElementById('habitacionCheckin').value;
-			const huesped = document.getElementById('nombreHuesped').value.trim();
-			const fechaIngreso = document.getElementById('fechaIngreso').value;
-			const fechaSalida = document.getElementById('fechaSalida').value;
-			if (!numero || !huesped || !fechaIngreso || !fechaSalida) return;
-			if (fechaSalida < fechaIngreso) {
-				alert('La fecha de salida no puede ser antes de la fecha de ingreso.');
-				return;
-			}
-			let habitaciones = getHabitaciones();
-			habitaciones = habitaciones.map(h => {
-				if (h.numero === numero) {
-					// No permitir check-in si está ocupada o si hay una reserva de otro huésped para ese rango
-					if (h.ocupacion) {
-						alert('La habitación ya está ocupada.');
-						return h;
-					}
-					if (h.reservas.some(r => !(fechaSalida < r.fechaIngreso || fechaIngreso > r.fechaSalida) && r.huesped !== huesped)) {
-						alert('Ya existe una reserva de otro huésped que se cruza con esas fechas.');
-						return h;
-					}
-					// Si hay una reserva para este huésped y rango, la quitamos
-					let nuevaReservas = h.reservas.filter(r => (r.huesped !== huesped || r.fechaIngreso !== fechaIngreso || r.fechaSalida !== fechaSalida));
-					return { ...h, ocupacion: { huesped, fechaIngreso, fechaSalida, ingreso: false, pago: false }, reservas: nuevaReservas, estado: 'Ocupada' };
-				}
-				return h;
-			});
-			setHabitaciones(habitaciones);
-			this.reset();
-			render();
-		};
+      <section id="ventas" class="card" style="display:none">
+        <h2>Ventas / Contratos</h2>
+        <form id="formVenta" class="row" onsubmit="event.preventDefault(); addVenta();">
+          <select id="ventaClient" required></select>
 
-		// Check-out: libera la ocupación actual
-		document.getElementById('formCheckout').onsubmit = function(e) {
-			e.preventDefault();
-			const numero = document.getElementById('habitacionCheckout').value;
-			if (!numero) return;
-			let habitaciones = getHabitaciones();
-			habitaciones = habitaciones.map(h =>
-				h.numero === numero ? { ...h, ocupacion: null, estado: 'Disponible' } : h
-			);
-			setHabitaciones(habitaciones);
-			this.reset();
-			render();
-		};
+          <label style="display:flex;align-items:center;gap:6px">
+            <span class="small muted">Propiedad:</span>
+            <select id="ventaType" onchange="updateVentaPropertyOptions()">
+              <option value="lote">Lote</option>
+              <option value="casa">Casa</option>
+            </select>
+            <select id="ventaProperty" required style="min-width:220px"></select>
+          </label>
 
-		// Inicializar
-		render();
-	</script>
+          <label style="display:flex;align-items:center;gap:6px">
+            <span class="small muted">Modalidad:</span>
+            <select id="ventaMode">
+              <option value="pagos">A pagos</option>
+              <option value="contado">Al contado</option>
+            </select>
+          </label>
+
+          <input id="ventaTotal" type="number" placeholder="Precio total" min="0" step="0.01" required />
+          <input id="ventaAbono" type="number" placeholder="Abono inicial" min="0" step="0.01" value="0" />
+          <input id="ventaPlazos" type="number" placeholder="Plazos (meses)" min="1" value="12" />
+          <input id="ventaStart" type="date" required />
+          <button class="btn" type="submit">Crear venta</button>
+        </form>
+
+        <div style="margin-top:12px">
+          <table id="ventasTable">
+            <thead><tr><th>#</th><th>Cliente</th><th>Propiedad</th><th>Total</th><th>Saldo</th><th>Próx. Venc.</th><th>Acciones</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="pagos" class="card" style="display:none">
+        <h2>Registrar pago / Abono</h2>
+        <form id="formPago" class="row" onsubmit="event.preventDefault(); addPago();">
+          <select id="pagoVenta" required></select>
+          <input id="pagoAmount" type="number" step="0.01" min="0.01" placeholder="Monto" required />
+          <input id="pagoDate" type="date" required />
+          <input id="pagoNote" placeholder="Nota (opcional)" />
+          <button class="btn" type="submit">Registrar pago</button>
+        </form>
+
+        <div style="margin-top:12px">
+          <h3>Pagos recientes</h3>
+          <table id="pagosTable">
+            <thead><tr><th>Fecha</th><th>Venta</th><th>Cliente</th><th>Monto</th><th>Asignado</th><th>Nota</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="reportes" class="card" style="display:none">
+        <h2>Reportes / Export / Import / Respaldo</h2>
+        <div class="flex" style="gap:8px;flex-wrap:wrap">
+          <button class="btn" onclick="exportData()">Exportar a JSON</button>
+          <button class="btn" onclick="exportCSV('clients')">CSV Clientes</button>
+          <button class="btn" onclick="exportCSV('ventas')">CSV Ventas</button>
+          <button class="btn" onclick="exportCSV('pagos')">CSV Pagos</button>
+
+          <input id="importFile" type="file" accept="application/json" />
+          <button class="btn secondary" onclick="importData()">Importar JSON</button>
+
+          <button class="btn" id="btn-backup-now" onclick="createBackup()">Respaldar ahora</button>
+          <button class="btn secondary" id="btn-toggle-autobackup" onclick="toggleAutoBackup()">Auto-respaldos: OFF</button>
+          <button class="btn" onclick="downloadLatestBackup()">Descargar último respaldo</button>
+        </div>
+
+        <div style="margin-top:12px" class="notice small">
+          Nota: la importación puede fusionar o reemplazar datos según la confirmación. Los respaldos automáticos se guardan localmente (localStorage).
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <footer>Inversiones Sandoval — Versión local de prueba</footer>
+
+  <script>
+    // Estructura de datos
+    const STORAGE_KEY = 'inversiones-data-v2';
+    const BACKUPS_KEY = 'inversiones-backups-v2';
+    let state = {
+      clients: [],
+      lotes: [],
+      casas: [],
+      ventas: [], // ventas/contratos, cada venta incluye cronograma 'schedule' y propertyType/propertyId
+      pagos: []
+    };
+
+    // Utilidades de fecha y dinero (moneda: GTQ)
+    function addMonths(dateStr, months) {
+      const d = new Date(dateStr);
+      const targetMonth = d.getMonth() + months;
+      d.setMonth(targetMonth);
+      if (d.getDate() !== new Date(dateStr).getDate()) {
+        d.setDate(0);
+      }
+      return d.toISOString().slice(0,10);
+    }
+    function fmtMoney(n){ return Number(n || 0).toLocaleString('es-GT',{style:'currency',currency:'GTQ'}); }
+    function todayISO(){ return new Date().toISOString().slice(0,10); }
+
+    // Persistencia
+    function saveState(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); renderAll(); }
+    function loadState(){ const raw = localStorage.getItem(STORAGE_KEY); if(raw){ try{ state = JSON.parse(raw); }catch(e){ console.error('parse fail',e); } } else { saveState(); } }
+    function saveBackup(blobName, data){
+      const backups = JSON.parse(localStorage.getItem(BACKUPS_KEY) || '[]');
+      backups.push({id: Date.now(), name: blobName, date: todayISO(), data});
+      while(backups.length>20) backups.shift();
+      localStorage.setItem(BACKUPS_KEY, JSON.stringify(backups));
+    }
+    function latestBackup(){ const backups = JSON.parse(localStorage.getItem(BACKUPS_KEY) || '[]'); if(backups.length===0) return null; return backups[backups.length-1]; }
+
+    // CRUD: Clients
+    function addClient(){
+      const name = document.getElementById('clientName').value.trim();
+      if(!name) return alert('Nombre obligatorio');
+      const c = {
+        id: 'C'+Date.now(),
+        name,
+        doc: document.getElementById('clientDoc').value.trim(),
+        phone: document.getElementById('clientPhone').value.trim(),
+        email: document.getElementById('clientEmail').value.trim(),
+        createdAt: todayISO()
+      };
+      state.clients.push(c);
+      document.getElementById('formClient').reset();
+      saveState();
+    }
+
+    function renderClients(filter=''){
+      const tbody = document.querySelector('#clientsTable tbody');
+      tbody.innerHTML = '';
+      const q = (document.getElementById('searchClient').value || '').toLowerCase();
+      const clients = state.clients.filter(c => c.name.toLowerCase().includes(q) || (c.doc||'').toLowerCase().includes(q));
+      clients.forEach(c=>{
+        const saldo = computeClientSaldo(c.id);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${c.name}</td><td>${c.doc||''}</td><td>${c.phone||''}</td><td>${fmtMoney(saldo)}</td>
+          <td class="actions">
+            <button onclick="viewClient('${c.id}')" class="btn small">Ver</button>
+            <button onclick="preselectVenta('${c.id}')" class="btn secondary small">Vender</button>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function viewClient(clientId){
+      const client = state.clients.find(c=>c.id===clientId);
+      if(!client) return alert('Cliente no encontrado');
+      const ventas = state.ventas.filter(v=>v.clientId===clientId);
+      let text = `${client.name}\nDocumento: ${client.doc||''}\nTel: ${client.phone||''}\n\nVentas:\n`;
+      ventas.forEach(v=>{
+        const saldo = computeVentaSaldo(v.id);
+        const next = nextDueForVenta(v.id);
+        text += `- ${v.propertyCode} (${v.propertyType}) | Total ${fmtMoney(v.total)} | Saldo ${fmtMoney(saldo)} | Próx: ${next || 'N/A'}\n`;
+      });
+      text += '\nPagos recientes:\n';
+      state.pagos.filter(p=>p.clientId===clientId).slice().reverse().slice(0,10).forEach(p=>{
+        const allocations = (p.allocations||[]).map(a=>a.label).join('; ');
+        text += `${p.date} - ${fmtMoney(p.amount)} - ${allocations} - ${p.note||''}\n`;
+      });
+      alert(text);
+    }
+
+    // Lotes
+    function addLote(){
+      const code = document.getElementById('loteCode').value.trim();
+      if(!code) return alert('Código de lote requerido');
+      const lote = {
+        id: 'L'+Date.now(),
+        code,
+        ubic: document.getElementById('loteUbic').value.trim(),
+        price: Number(document.getElementById('lotePrice').value) || 0,
+        status: 'disponible',
+        createdAt: todayISO()
+      };
+      state.lotes.push(lote);
+      document.getElementById('formLote').reset();
+      saveState();
+    }
+
+    function renderLotes(){
+      const tbody = document.querySelector('#lotesTable tbody');
+      tbody.innerHTML = '';
+      state.lotes.forEach(l=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${l.code}</td><td>${l.ubic||''}</td><td>${fmtMoney(l.price)}</td><td>${l.status}</td>
+          <td>
+            <button class="btn small" onclick="preselectLote('${l.id}')">Seleccionar</button>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Casas
+    function addCasa(){
+      const code = document.getElementById('casaCode').value.trim();
+      if(!code) return alert('Código de casa requerido');
+      const casa = {
+        id: 'H'+Date.now(),
+        code,
+        ubic: document.getElementById('casaUbic').value.trim(),
+        price: Number(document.getElementById('casaPrice').value) || 0,
+        status: 'disponible',
+        createdAt: todayISO()
+      };
+      state.casas.push(casa);
+      document.getElementById('formCasa').reset();
+      saveState();
+    }
+
+    function renderCasas(){
+      const tbody = document.querySelector('#casasTable tbody');
+      tbody.innerHTML = '';
+      state.casas.forEach(h=>{
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${h.code}</td><td>${h.ubic||''}</td><td>${fmtMoney(h.price)}</td><td>${h.status}</td>
+          <td>
+            <button class="btn small" onclick="preselectCasa('${h.id}')">Seleccionar</button>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Ventas / contratos (soporta lote o casa, contado o a pagos)
+    function addVenta(){
+      const clientId = document.getElementById('ventaClient').value;
+      const propertyType = document.getElementById('ventaType').value; // 'lote' or 'casa'
+      const propertyId = document.getElementById('ventaProperty').value;
+      if(!clientId || !propertyId) return alert('Seleccione cliente y propiedad');
+      const total = Number(document.getElementById('ventaTotal').value) || 0;
+      const abono = Number(document.getElementById('ventaAbono').value) || 0;
+      const plazos = parseInt(document.getElementById('ventaPlazos').value) || 1;
+      const start = document.getElementById('ventaStart').value || todayISO();
+      const mode = document.getElementById('ventaMode').value; // 'contado' or 'pagos'
+
+      if(total <= 0) return alert('El precio total debe ser mayor que 0');
+      if(abono < 0 || abono > total) return alert('El abono debe ser >= 0 y <= precio total');
+      if(plazos < 1) return alert('Plazos inválidos');
+
+      // obtener propiedad
+      const property = (propertyType === 'lote') ? state.lotes.find(l=>l.id===propertyId) : state.casas.find(h=>h.id===propertyId);
+      if(!property) return alert('Propiedad no encontrada');
+      if(property.status==='vendido') return alert('Propiedad ya vendida');
+
+      const venta = {
+        id: 'V'+Date.now(),
+        clientId,
+        clientName: (state.clients.find(c=>c.id===clientId)||{}).name||'--',
+        propertyType,
+        propertyId,
+        propertyCode: property.code,
+        total,
+        abono,
+        plazos,
+        startDate: start,
+        schedule: [],
+        mode, // contado/pagos
+        createdAt: todayISO()
+      };
+
+      if(mode === 'contado'){
+        // venta al contado: registrar pago completo y no cronograma
+        venta.schedule = [];
+        state.ventas.push(venta);
+        property.status = 'vendido';
+        const pagoObj = {
+          id: 'P'+Date.now(),
+          ventaId: venta.id,
+          clientId,
+          amount: total,
+          date: start,
+          note: 'Venta al contado',
+          allocations: [{label: 'Contado', amount: total}]
+        };
+        state.pagos.push(pagoObj);
+      } else {
+        // a pagos: generar cronograma sobre (total - abono)
+        const rest = Math.max(0, total - abono);
+        const installment = Number((rest / plazos).toFixed(2));
+        const schedule = [];
+        for(let i=0;i<plazos;i++){
+          schedule.push({
+            index: i+1,
+            dueDate: addMonths(start, i),
+            amount: installment,
+            paid: 0
+          });
+        }
+        const sumSchedule = schedule.reduce((s,it)=>s+it.amount,0);
+        const diff = Number((rest - sumSchedule).toFixed(2));
+        if(diff !== 0 && schedule.length>0) schedule[schedule.length-1].amount = Number((schedule[schedule.length-1].amount + diff).toFixed(2));
+
+        venta.schedule = schedule;
+        state.ventas.push(venta);
+        property.status = 'vendido';
+        // registrar abono inicial como pago (si >0) separado
+        if(abono>0){
+          const pagoObj = {
+            id: 'P'+Date.now(),
+            ventaId: venta.id,
+            clientId,
+            amount: abono,
+            date: start,
+            note: 'Abono inicial',
+            allocations: [{label:'Abono inicial', amount: abono}]
+          };
+          state.pagos.push(pagoObj);
+        }
+      }
+
+      document.getElementById('formVenta').reset();
+      document.getElementById('ventaStart').value = todayISO();
+      saveState();
+      alert('Venta creada. Revisa detalle para cronograma/pagos.');
+    }
+
+    function renderVentas(){
+      const tbody = document.querySelector('#ventasTable tbody');
+      tbody.innerHTML = '';
+      state.ventas.forEach((v,i)=>{
+        const saldo = computeVentaSaldo(v.id);
+        const next = nextDueForVenta(v.id) || 'Sin pagos';
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${i+1}</td><td>${v.clientName}</td><td>${v.propertyCode} (${v.propertyType})</td><td>${fmtMoney(v.total)}</td><td>${fmtMoney(saldo)}</td><td>${next}</td>
+          <td>
+            <button class="btn small" onclick="openVentaDetail('${v.id}')">Detalle</button>
+            <button class="btn secondary small" onclick="preselectPago('${v.id}')">Pagar</button>
+          </td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function openVentaDetail(ventaId){
+      const v = state.ventas.find(x=>x.id===ventaId);
+      if(!v) return alert('Venta no encontrada');
+      const pagos = state.pagos.filter(p=>p.ventaId===ventaId);
+      let text = `Venta: ${v.propertyCode} (${v.propertyType})\nCliente: ${v.clientName}\nTotal: ${fmtMoney(v.total)}\nAbono inicial: ${fmtMoney(v.abono)}\nModalidad: ${v.mode}\nPlazos: ${v.plazos}\nInicio: ${v.startDate}\n\nCronograma:\n`;
+      if(v.schedule && v.schedule.length){
+        v.schedule.forEach(s=>{
+          text += `#${s.index} - Vence: ${s.dueDate} - Monto: ${fmtMoney(s.amount)} - Pagado: ${fmtMoney(s.paid)}\n`;
+        });
+      } else {
+        text += '(Sin cronograma - venta al contado)\n';
+      }
+      text += '\nPagos aplicados:\n';
+      pagos.forEach(p=> {
+        const alloc = (p.allocations||[]).map(a=>`${a.label}:${fmtMoney(a.amount)}`).join('; ');
+        text += `${p.date} - ${fmtMoney(p.amount)} - ${alloc} - ${p.note||''}\n`;
+      });
+      const saldo = computeVentaSaldo(ventaId);
+      text += `\nSaldo restante: ${fmtMoney(saldo)}`;
+      alert(text);
+    }
+
+    // Pagos
+    function addPago(){
+      const ventaId = document.getElementById('pagoVenta').value;
+      if(!ventaId) return alert('Seleccione una venta');
+      let amount = Number(document.getElementById('pagoAmount').value)||0;
+      const date = document.getElementById('pagoDate').value || todayISO();
+      const note = document.getElementById('pagoNote').value.trim();
+      if(amount <= 0) return alert('Monto debe ser mayor que 0');
+      const venta = state.ventas.find(v=>v.id===ventaId);
+      if(!venta) return alert('Venta no encontrada');
+      const remaining = computeVentaSaldo(ventaId);
+      if(venta.mode === 'contado'){
+        alert('Venta al contado ya registrada como pago completo.');
+        return;
+      }
+      if(amount > remaining){
+        if(!confirm('El pago supera el saldo. Desea registrar igual y dejar saldo a 0?')) return;
+      }
+      const pago = {
+        id: 'P'+Date.now(),
+        ventaId,
+        clientId: venta.clientId,
+        amount,
+        date,
+        note,
+        allocations: []
+      };
+      applyPaymentToSchedule(venta, pago);
+      state.pagos.push(pago);
+      document.getElementById('formPago').reset();
+      document.getElementById('pagoDate').value = todayISO();
+      saveState();
+    }
+
+    function renderPagos(){
+      const tbody = document.querySelector('#pagosTable tbody');
+      tbody.innerHTML = '';
+      const pagos = state.pagos.slice().sort((a,b)=>new Date(b.date)-new Date(a.date));
+      pagos.forEach(p=>{
+        const venta = state.ventas.find(v=>v.id===p.ventaId) || {};
+        const client = state.clients.find(c=>c.id===p.clientId) || {};
+        const assigned = (p.allocations||[]).map(a=>a.label + ':' + fmtMoney(a.amount)).join(' | ');
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td>${p.date}</td><td>${venta.propertyCode||''}</td><td>${client.name||''}</td><td>${fmtMoney(p.amount)}</td><td>${assigned}</td><td>${p.note||''}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Aplicación de pagos a cronograma
+    function applyPaymentToSchedule(venta, pago){
+      let remaining = Number(pago.amount);
+      if(!venta.schedule || venta.schedule.length===0){
+        // si no hay cronograma, asignar todo como 'Extra/Contado'
+        pago.allocations.push({label: 'Extra/Contado', amount: remaining});
+        remaining = 0;
+        return;
+      }
+      for(const item of venta.schedule){
+        const dueLeft = Number((item.amount - (item.paid||0)).toFixed(2));
+        if(dueLeft <= 0) continue;
+        if(remaining <= 0) break;
+        const take = Math.min(remaining, dueLeft);
+        item.paid = Number(((item.paid||0) + take).toFixed(2));
+        pago.allocations.push({label: `Cuota #${item.index} (${item.dueDate})`, amount: take});
+        remaining = Number((remaining - take).toFixed(2));
+      }
+      if(remaining > 0){
+        pago.allocations.push({label: 'Extra', amount: remaining});
+        remaining = 0;
+      }
+    }
+
+    // Cálculos de saldo y próximas fechas (usa cronograma)
+    function computeVentaSaldo(ventaId){
+      const v = state.ventas.find(x=>x.id===ventaId);
+      if(!v) return 0;
+      if(!v.schedule || v.schedule.length===0) return 0; // contado -> saldo 0
+      const totalScheduled = v.schedule.reduce((s,it)=>s+Number(it.amount),0);
+      const totalPaidFromSchedule = v.schedule.reduce((s,it)=>s+Number(it.paid||0),0);
+      const saldo = Math.max(0, Number((totalScheduled - totalPaidFromSchedule).toFixed(2)));
+      return saldo;
+    }
+
+    function computeClientSaldo(clientId){
+      const ventas = state.ventas.filter(v=>v.clientId===clientId);
+      return ventas.reduce((s,v)=>s+computeVentaSaldo(v.id),0);
+    }
+
+    function nextDueForVenta(ventaId){
+      const v = state.ventas.find(x=>x.id===ventaId);
+      if(!v) return null;
+      if(!v.schedule || v.schedule.length===0) return 'Pago completo';
+      for(const s of v.schedule){
+        if(Number(s.paid || 0) < Number(s.amount)) return s.dueDate;
+      }
+      return 'Pago completo';
+    }
+
+    function upcomingVencimientos(days=30){
+      const today = new Date();
+      const limit = new Date();
+      limit.setDate(limit.getDate() + days);
+      const list = [];
+      state.ventas.forEach(v=>{
+        const next = nextDueForVenta(v.id);
+        if(!next || next==='Pago completo') return;
+        const d = new Date(next);
+        if(d >= today && d <= limit){
+          list.push({venta:v, date:next, saldo:computeVentaSaldo(v.id)});
+        }
+      });
+      return list.sort((a,b)=>new Date(a.date)-new Date(b.date));
+    }
+
+    // Preselecciones UI
+    function preselectVenta(clientId){
+      showSection('nav-ventas');
+      setTimeout(()=>{ document.getElementById('ventaClient').value = clientId; }, 100);
+    }
+    function preselectLote(loteId){
+      showSection('nav-ventas');
+      setTimeout(()=>{ document.getElementById('ventaType').value = 'lote'; updateVentaPropertyOptions(); document.getElementById('ventaProperty').value = loteId; },100);
+    }
+    function preselectCasa(casaId){
+      showSection('nav-ventas');
+      setTimeout(()=>{ document.getElementById('ventaType').value = 'casa'; updateVentaPropertyOptions(); document.getElementById('ventaProperty').value = casaId; },100);
+    }
+    function preselectPago(ventaId){
+      showSection('nav-pagos');
+      setTimeout(()=>{ document.getElementById('pagoVenta').value = ventaId; document.getElementById('pagoAmount').focus(); },100);
+    }
+
+    // Render global selects and summary
+    function populateSelects(){
+      const ventaClient = document.getElementById('ventaClient');
+      const ventaProperty = document.getElementById('ventaProperty');
+      const pagoVenta = document.getElementById('pagoVenta');
+      [ventaClient, ventaProperty, pagoVenta].forEach(s=>s && (s.innerHTML=''));
+      state.clients.forEach(c=>{
+        const opt = document.createElement('option'); opt.value = c.id; opt.text = c.name; ventaClient && ventaClient.appendChild(opt);
+      });
+      updateVentaPropertyOptions();
+      state.ventas.forEach(v=>{
+        if(pagoVenta){
+          const opt = document.createElement('option'); opt.value = v.id; opt.text = `${v.propertyCode} — ${v.clientName} — ${fmtMoney(computeVentaSaldo(v.id))}`; pagoVenta.appendChild(opt);
+        }
+      });
+    }
+
+    function updateVentaPropertyOptions(){
+      const type = document.getElementById('ventaType').value;
+      const sel = document.getElementById('ventaProperty');
+      sel.innerHTML = '';
+      if(type === 'lote'){
+        state.lotes.forEach(l=>{
+          if(l.status !== 'vendido'){
+            const opt = document.createElement('option'); opt.value = l.id; opt.text = `${l.code} — ${fmtMoney(l.price)} — ${l.status}`; sel.appendChild(opt);
+          }
+        });
+      } else {
+        state.casas.forEach(h=>{
+          if(h.status !== 'vendido'){
+            const opt = document.createElement('option'); opt.value = h.id; opt.text = `${h.code} — ${fmtMoney(h.price)} — ${h.status}`; sel.appendChild(opt);
+          }
+        });
+      }
+    }
+
+    function renderSummary(){
+      const totalClientes = state.clients.length;
+      const totalLotes = state.lotes.length;
+      const totalCasas = state.casas.length;
+      const vendidos = state.lotes.filter(l=>l.status==='vendido').length + state.casas.filter(h=>h.status==='vendido').length;
+      const saldoTotal = state.ventas.reduce((s,v)=>s+computeVentaSaldo(v.id),0);
+      document.getElementById('summary').innerText = `Clientes: ${totalClientes}\nLotes: ${totalLotes} | Casas: ${totalCasas} (vendidos: ${vendidos})\nSaldo total pendiente: ${fmtMoney(saldoTotal)}`;
+      const venc = upcomingVencimientos(30);
+      const listEl = document.getElementById('vencimientosList');
+      if(venc.length===0){ listEl.innerText = 'No hay vencimientos en 30 días.'; return; }
+      listEl.innerHTML = '';
+      venc.forEach(item=>{
+        const div = document.createElement('div');
+        div.className = 'small';
+        div.innerText = `${item.date} — ${item.venta.propertyCode} — ${item.venta.clientName} — ${fmtMoney(item.saldo)}`;
+        listEl.appendChild(div);
+      });
+    }
+
+    function renderAll(){
+      populateSelects();
+      renderClients();
+      renderLotes();
+      renderCasas();
+      renderVentas();
+      renderPagos();
+      renderSummary();
+    }
+
+    // Export / Import / CSV (no cambios necesarios, casas included in export)
+    function exportData(){
+      const blob = new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'inversiones-data.json'; document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function exportCSV(type){
+      let rows = [];
+      if(type==='clients'){
+        rows.push(['id','name','doc','phone','email','createdAt']);
+        state.clients.forEach(c=> rows.push([c.id,c.name,c.doc||'','phone',c.email||'',c.createdAt||'']));
+      } else if(type==='ventas'){
+        rows.push(['id','clientName','propertyCode','propertyType','total','abono','plazos','startDate','saldo']);
+        state.ventas.forEach(v=> rows.push([v.id,v.clientName,v.propertyCode,v.propertyType, v.total, v.abono, v.plazos, v.startDate, computeVentaSaldo(v.id)]));
+      } else if(type==='pagos'){
+        rows.push(['id','ventaId','clientId','date','amount','allocations','note']);
+        state.pagos.forEach(p=> rows.push([p.id,p.ventaId,p.clientId,p.date,p.amount, (p.allocations||[]).map(a=>a.label+':'+a.amount).join('|'), p.note||'']));
+      }
+      const csv = rows.map(r=> r.map(cell=> `"${String(cell||'').replace(/"/g,'""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = `inversiones-${type}.csv`; document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function importData(){
+      const f = document.getElementById('importFile').files[0];
+      if(!f) return alert('Selecciona un archivo JSON a importar');
+      const reader = new FileReader();
+      reader.onload = e=>{
+        try{
+          const data = JSON.parse(e.target.result);
+          if(!data || typeof data !== 'object') throw new Error('Formato inválido');
+          if(confirm('Desea fusionar (OK) o reemplazar (Cancelar) los datos actuales?')){
+            const addIfNew = (arrName) => {
+              const incoming = data[arrName] || [];
+              const target = state[arrName] || [];
+              const existingIds = new Set(target.map(x=>x.id));
+              incoming.forEach(item=>{ if(!existingIds.has(item.id)) target.push(item); });
+              state[arrName] = target;
+            };
+            ['clients','lotes','casas','ventas','pagos'].forEach(addIfNew);
+            saveState();
+            alert('Importación (fusión) completada');
+          } else {
+            state = { clients: data.clients||[], lotes: data.lotes||[], casas: data.casas||[], ventas: data.ventas||[], pagos: data.pagos||[] };
+            saveState();
+            alert('Importación (reemplazo) completada');
+          }
+        }catch(err){
+          alert('Error al importar: ' + err.message);
+        }
+      };
+      reader.readAsText(f);
+    }
+
+    // Backups automáticos / manuales (sin cambios)
+    let autoBackupInterval = null;
+    function createBackup(){
+      const now = new Date();
+      const name = `backup-${now.toISOString().slice(0,19).replace(/[:T]/g,'-')}.json`;
+      saveBackup(name, JSON.stringify(state));
+      alert('Respaldo creado y guardado localmente');
+    }
+    function toggleAutoBackup(){
+      const btn = document.getElementById('btn-toggle-autobackup');
+      if(autoBackupInterval){
+        clearInterval(autoBackupInterval);
+        autoBackupInterval = null;
+        btn.innerText = 'Auto-respaldos: OFF';
+        btn.classList.add('btn','secondary');
+      } else {
+        autoBackupInterval = setInterval(()=> {
+          saveBackup('auto-'+Date.now(), JSON.stringify(state));
+        }, 1000 * 60 * 5);
+        btn.innerText = 'Auto-respaldos: ON';
+      }
+    }
+    function downloadLatestBackup(){
+      const b = latestBackup();
+      if(!b) return alert('No hay respaldos guardados');
+      const blob = new Blob([b.data],{type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = `inversiones-backup-${b.date}.json`; document.body.appendChild(a); a.click(); a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    // Navegación simple
+    const navButtons = {
+      'nav-dashboard': 'dashboard',
+      'nav-clients': 'clients',
+      'nav-lotes': 'lotes',
+      'nav-casas': 'casas',
+      'nav-ventas': 'ventas',
+      'nav-pagos': 'pagos',
+      'nav-reportes': 'reportes'
+    };
+
+    function showSection(navId){
+      Object.keys(navButtons).forEach(k=>{
+        document.getElementById(k).classList.toggle('active', k===navId);
+        document.getElementById(navButtons[k]).style.display = (k===navId ? '' : 'none');
+      });
+      renderAll();
+    }
+
+    Object.keys(navButtons).forEach(k=>{
+      document.getElementById(k).addEventListener('click', ()=>showSection(k));
+    });
+
+    // Inicializar
+    loadState();
+    document.getElementById('ventaStart').value = todayISO();
+    document.getElementById('pagoDate').value = todayISO();
+    renderAll();
+    document.getElementById('searchClient').addEventListener('keyup', (e)=>{ if(e.key==='Enter') renderClients(); });
+    window.addEventListener('beforeunload', ()=>{ saveBackup('onclose-'+Date.now(), JSON.stringify(state)); });
+
+  </script>
 </body>
 </html>
