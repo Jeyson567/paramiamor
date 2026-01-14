@@ -25,16 +25,13 @@ body{
     box-shadow:0 10px 30px rgba(0,0,0,.25);
     text-align:center;
     z-index:2;
-    animation:fade .5s;
 }
 
 h1{color:#c2185b;font-size:22px;}
 p{font-size:18px;line-height:1.6;}
 
-.buttons{
-    margin-top:20px;
-    display:flex;
-    justify-content:space-between;
+.controls{
+    margin:15px 0;
 }
 
 button{
@@ -45,23 +42,18 @@ button{
     border-radius:30px;
     font-size:15px;
     cursor:pointer;
+    margin:5px;
 }
 
 .music{
-    width:100%;
-    margin:15px 0;
     background:#ff4d6d;
+    width:100%;
 }
 
 .footer{
     margin-top:15px;
     font-size:14px;
     color:#888;
-}
-
-@keyframes fade{
-    from{opacity:0;transform:scale(.9);}
-    to{opacity:1;transform:scale(1);}
 }
 
 .heart{
@@ -82,13 +74,20 @@ button{
 
 <body>
 
+<audio id="music" loop>
+  <source src="te_amo.mp3" type="audio/mpeg">
+</audio>
+
 <div class="card">
     <h1 id="title">Carta 1 💌</h1>
     <p id="text"></p>
 
-    <button class="music" onclick="openMusic()">🎶 Esta canción es para ti</button>
+    <div class="controls">
+        <button class="music" onclick="playMusic()">▶️ Reproducir música</button>
+        <button onclick="pauseMusic()">⏸ Pausar</button>
+    </div>
 
-    <div class="buttons">
+    <div class="controls">
         <button onclick="prev()">⬅ Anterior</button>
         <button onclick="next()">Siguiente ➡</button>
     </div>
@@ -99,8 +98,6 @@ button{
 </div>
 
 <script>
-const youtube = "https://youtu.be/KMGbTGLnsKE?si=1Zl-wce-RchLnEVa";
-
 const cartas = [
 "Desde que llegaste a mi vida, todo tiene más sentido.",
 "Tu sonrisa es mi lugar favorito.",
@@ -133,68 +130,43 @@ const cartas = [
 "A tu lado todo vale la pena.",
 "Tu abrazo es mi refugio.",
 "Eres la razón de mis sonrisas.",
-"Gracias por estar conmigo.",
 "Amarte es un privilegio.",
-"Eres mi mejor casualidad.",
 "Tu presencia lo cambia todo.",
-"Me haces sentir completo.",
 "Eres mi paz.",
 "Siempre elijo a ti.",
 "Mi corazón es tuyo.",
 "Tu amor es mi hogar.",
 "Eres mi último pensamiento del día.",
-"Mi día mejora cuando te hablo.",
 "Te llevo conmigo siempre.",
 "Eres mi razón favorita.",
-"Mi mundo tiene tu nombre.",
-"Tu amor me inspira.",
-"Gracias por amarme.",
-"Eres increíble.",
-"Mi vida es más bonita contigo.",
-"Eres mi persona favorita.",
-"Siempre quiero cuidarte.",
-"Tu amor es un regalo.",
-"Eres especial de mil maneras.",
-"Mi sonrisa tiene tu culpa.",
-"Eres mi mejor historia.",
-"Te amo hoy y siempre.",
-"Eres mi felicidad.",
-"Siempre quiero verte sonreír.",
-"Amarte es mi decisión diaria.",
-"Eres mi todo.",
-"Mi amor por ti no tiene fin.",
-"Eres mi destino.",
-"Te elegiría mil veces.",
-"Mi corazón te pertenece.",
-"Eres mi mayor bendición.",
-"Te amo más cada día.",
-"Siempre tú.",
-"Eres lo mejor que me pasó.",
 "Gracias por existir, Brianna.",
-"Mi corazón sonríe por ti.",
-"Eres mi milagro.",
-"Te amo sin medida.",
-"Contigo quiero todo.",
-"Eres mi amor verdadero.",
-"Mi vida es mejor a tu lado.",
 "Siempre serás tú."
 ];
 
-let i=0;
+let i = 0;
+
 function show(){
-    document.getElementById("text").innerText=cartas[i];
-    document.getElementById("title").innerText=`Carta ${i+1} 💌`;
+    document.getElementById("text").innerText = cartas[i];
+    document.getElementById("title").innerText = `Carta ${i+1} 💌`;
 }
-function next(){ if(i<cartas.length-1) i++; show(); }
-function prev(){ if(i>0) i--; show(); }
-function openMusic(){ window.open(youtube,"_blank"); }
+
+function next(){ if(i < cartas.length-1) i++; show(); }
+function prev(){ if(i > 0) i--; show(); }
+
+function playMusic(){
+    document.getElementById("music").play();
+}
+
+function pauseMusic(){
+    document.getElementById("music").pause();
+}
 
 function heart(){
-    const h=document.createElement("div");
-    h.className="heart";
-    h.innerHTML="❤";
-    h.style.left=Math.random()*100+"vw";
-    h.style.fontSize=(Math.random()*20+15)+"px";
+    const h = document.createElement("div");
+    h.className = "heart";
+    h.innerHTML = "❤";
+    h.style.left = Math.random()*100 + "vw";
+    h.style.fontSize = (Math.random()*20+15) + "px";
     document.body.appendChild(h);
     setTimeout(()=>h.remove(),6000);
 }
